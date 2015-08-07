@@ -1,0 +1,1020 @@
+swaks - SMTP transaction tester
+flip - convert text file line endings between Unix and DOS formats
+mtr - ping and traceroute glued together
+xxd - make a hexdump or do the reverse
+watch - execute a program periodically, showing output fullscreen
+netcat - TCP/IP swiss army knife
+fuser - show which PIDs are using a file (executable, log, etc)
+stat - shows extended inode/file information, basically a userland stat()
+rename - Perl script (that appears to come with Perl), can rename groups of
+         files according to regular expressions
+dmidecode - prints BIOS level info to the terminal (make/model of machine, type of RAM it needs, etc)
+
+svnadmin create --fs-type=fsfs /path/to/new/repository
+
+apg -a 0 -n 100 -M SNCL (create random passwords)
+
+blkid (shows UUIDs for all mounted hard drives)
+ls -lh /dev/disk/by-uuid/ (same thing)
+
+#
+# To find duplicate files in the current working directory:
+#
+find . -type f -print0 | xargs -r0 md5sum >~/.md5sums && cat ~/.md5sums | perl -pi -e 's/\s.+//' | sort | uniq -d | xargs -n 1 --replace=foo grep 'foo' ~/.md5sums | less
+
+#
+# To do a recursive search and replace on all files in the current directory
+# This example replaces "foo" with "bar"
+#
+
+
+#
+# or limited to PHP files:
+#
+perl -pi -e 's/foo/bar/g' `find . -type f | grep php$`
+
+#
+# search for any reference of [/page] and replace with </a> and backup files
+#
+find -type f -print0 | xargs -r0 perl -pi.bak -e 's/\[\/page\]/<\/a>/g'
+
+
+#
+# do a find and replace any reference in a file with foo to bar
+#
+find DIR -type f -print0 | xargs -r0 perl -pi -e 's/foo/bar/g'
+
+#
+# To check reverse DNS for an IP, starting all the way at the root name servers:
+#
+dig +trace -x 12.34.56.78
+
+#
+# to perform a remote mysqldump on a remote server to the following
+#
+mysqldump --opt -h MYSQLSERVER -u DBUSER -p DBNAME > backup.sql
+
+#mysqldump -u username -p database --ignore-table=database.table1 --ignore-table=database.table2 > database.sql
+
+#
+# to find dirs with more than 5000 files
+#
+find . -type d -exec bash -c 'for d; do f=$(find "$d" -maxdepth 1 -type f -print 2>/dev/null| wc -l); ((f>5000)) && echo "$d found $f files"; done' _ {} +
+
+./virusmails found 3676333 files
+
+for older find, doing same thing finding dirs with 5000+ files
+
+find . -type d -exec bash -c 'for d; do f=$(find "$d" -maxdepth 1 -type f -print 2>/dev/null| wc -l); ((f>5000)) && echo "$d found $f files"; done' _ {} \;
+
+## to take the website part out of this line##
+## k2111:x:1155:1146:www.foobar.com:/www/site/k1:/dev/null ##
+
+cat /etc/passwd | perl -pi -e 'split(/:/); $_ = $_[4] . "\n"'
+
+also
+
+cat /etc/passwd | awk -F: '{print $5}'
+
+also to grep a file with a space/tab as the delimiter try:
+
+cat foo2 |awk -F' ' '{print $5}'
+cat blah | cut -d' ' -f3 
+
+# say you wanna delete a bunch of files, but get argument list too long, for example im trying to delete 30k lock files do the following command:
+
+find . -name '*.*.lock' |xargs rm
+
+# with a huge number of files, find will use too much memory; use this perl snippet to clear out a directory:
+
+perl -e 'chdir "/tmp" or die; opendir D, "."; while ($n = readdir D) { unlink $n }'
+
+# with mtime (useful to clear only old sessions) - 4 is the number of days (equivalent to find -mtime +4):
+
+perl -e 'chdir "/www/sites/www.magesite.com/files/html/var/session" or die; opendir D, "."; while ($n = readdir D) { if (-M $n > 4) {unlink $n} }'
+
+
+# added by Lance 2008-07-10
+# the following command can be used to find variables or arguments in files.
+find [/path] -type f |xargs grep -rno [arguments]
+
+# ex: I used the below command to find any files containing COMPANYXYZ.com in the /etc directory.
+find /etc -type f |xargs grep -rno COMPANYXYZ.com
+
+
+# added by Lance 2008-07-10
+# use the below command to rsync compressed data over SSH
+rsync -av -e "ssh -C" [file or folder] [user]@[destination server]:[destination data path]
+
+# ex: The below was used to transfer some sql files to a unnamed server.
+rsync -av -e "ssh -C" product_list.* zeroadmin@db01.foo.ml.COMPANYXYZ.com:/home/zeroadmin/
+
+# added by Lance 2008-07-10
+# use the below command to concatenate a log file
+/etc/init.d/sysklogd stop && echo '' >/var/log/[Log file name] && /etc/init.d/sysklogd start
+
+# ex: The below command was used to concatenate the user.log file. 
+/etc/init.d/sysklogd stop && echo '' >/var/log/user.log && /etc/init.d/sysklogd 
+start
+
+
+# how to remove blank lines from a file with perl
+perl -i.bak -n -e "print if /\S/" filename
+
+====================================
+
+# to grab the lines in a file that contain the characteristic/text in another file do
+
+grep -f file1(thefiletobelookedfor) file2 >foo <== foo has the matching lines from file2
+
+for example take file1 as a list of names one per line
+
+john
+ed
+joe
+
+file 2 = /etc/passwd so 
+
+grep -f file1(with the names 1 per line) file2(/etc/passwd) would yield each of the /etc/passwd lines that have john/ed/joe as users.. the ENTIRE line
+
+==================================
+
+to grab the first field before a : in a file (for example grab the username in an /etc/passwd file) do :
+
+perl -pe 's/:.*$//' $filetoparse
+
+==================================
+
+# to open port 2525 for example on the RH-Firewall-1-INPUT Chain
+
+iptables -A RH-Firewall-1-INPUT -i eth0 -p tcp --destination-port 2525 -m state --state NEW -j ACCEPT
+
+==================================
+
+# to add 1000 to the 2nd and 3rd fields in the Passwd-Entries file specified
+
+perl -ne '@f = split( m/:/ , $_ ); $f[2]+=10000; $f[3]+=10000; print join( ":", @f )' <Passwd-entries-for-Valid-Sites > Passwd-entries-for-valid-Sites-Modified
+
+==================================
+
+say you have file1 like
+
+foo1
+foo2
+foo3
+etc
+
+and you have file2 like
+
+bar1 
+bar2
+bar3
+etc
+
+and you want to have a file3 like
+
+foo1 bar1
+foo2 bar2
+foo3 bar3
+etc
+
+do
+
+(man paste for more options, like specifying delimiters)
+
+'paste file1 file2 >file3'
+
+===================================================
+nifty use of search & replace on php files for dir tree change
+
+www03:/www/sites/www.fitnessrxmag.com/html# cat community/memberphotos_manage.php |grep 'home\/fitness'
+$directory = '/home/fitnessr/public_html/community/members/';
+$thumbnails = '/home/fitnessr/public_html/community/members/thumbnails/';
+
+www03:/www/sites/www.fitnessrxmag.com/html# perl -pi -e 's/home\/fitnessr\/public_html/www\/sites\/www.fitnessrxmag.com\/files\/html/g' `find . -type f | grep php$`
+
+www03:/www/sites/www.fitnessrxmag.com/html# find . -name '*.php' -print0 |xargs -r0 grep -li 'home\/fitnessr'
+www03:/www/sites/www.fitnessrxmag.com/html#
+
+==========================================
+
+nice way to remove directories with a given name (make sure $dir_to_remove) is not blank
+
+find . -type d -print0 | grep -zZ $dir_to_remove | xargs -0 rm -rf
+
+===================================================
+
+list all files and directories starting from the current directory, and show permissions, mtime, ownership, and the full file path in an easily readable format
+
+# with username/group listings
+find . -print0 | grep -vzZ '^\.$' | sort -z | xargs -0 ls -ld | sed 's/ \.\// /'
+
+# with uid/gid listings (better for comparing files from rsnapshot backups across servers)
+find . -print0 | grep -vzZ '^\.$' | sort -z | xargs -0 ls -ldn | sed 's/ \.\// /'
+
+===============
+
+$ comm -23 allby.peter.sort done.joseph.sort > compared.lines.list
+This command will generate a file named "compared.lines.list", it contains the lines that exist in allby.peter.sort but nonexist in done.joseph.sort.
+
+---------------
+
+take a list of domains (1 per line) against the passwd and grab the k#### form the passwd file
+
+fgrep -f sites.txt passwd |cut -d: -f1,5 >knames-and-sites-from-file
+
+=====================
+
+to remove all whitespaces from a file:
+
+perl -pe 's/ +//g;' < infile > outfile
+
+=========================
+
+in vi, to put a : at the end of every line:
+
+:%s/$/\:/g
+
+in vi, to put a number at the beginning of every line:
+
+:%s/^/1\.2\.3\.4/g
+
+==========================
+
+in vi , to change k1234:www.foo.com (1 kname:domain per line) to $ip  $domain
+
+:%s/^k.*\:/67\.201\.38\.75 /g
+
+==========================
+
+how to create a file that's 4gb to test
+
+dd if=/dev/zero of=/flash/testfile3.tst bs=1k count=4100000
+
+==============================
+
+how to see how many active backups are actually running on a backup server
+
+backup4:/# ps ax -o cmd |grep rsync|grep daily.0|sort|uniq|wc -l
+
+
+==========================
+
+rename filenames with spaces to _ 
+
+rename 's/ /_/g' *
+
+===========================
+
+rename filenames with capitals to all lowercase:
+
+rename 'y/A-Z/a-z/' *
+
+================================
+
+set all contents of a file to lowercase:
+
+cat mixedcasefile | tr "[:upper:]" "[:lower:]" > lowercasefile 
+
+================================
+
+to take a file from
+
+Foo1
+Foo2
+Foo3
+Foo4
+Foo5 
+
+to
+
+Foo1 Foo2 Foo3 Foo4 Foo5
+
+utility01:~# echo `cat foo` > newfile
+
+An alternative to this in vi:
+
+:s/\n/ /g
+
+
+=================================
+
+#find files bigger than 200M and show their path and their size neatly
+
+find . -type f -size +200M -exec ls -lh {} \; | awk '{print $9 ": " $5 }'
+
+====================================================
+
+perl command to change an ftp/shell user password in linux to all the same password (using same salt) for a system that cant install expect
+
+# perl -pe 's/^(bl1.*?):.*?:(.*)$/$1:HASHFORPASSWORDTOUSEHERE:$2/g' < /etc/shadow> /etc/new.shadow
+
+remember to escape special chars :)
+
+======================================
+
+# replace <iframe src=http://www.oi06.cn/i.htm width=100 height=0></iframe> with nothing in all files and backup the mod'd files
+
+find -type f -print0 | xargs -r0 perl -pi.bak -e 's{<iframe src=http://www.oi06.cn/i.html width=100 height=0></iframe>}{}g'
+
+
+======================================
+# search all files for a string
+
+find . -type f -print0 | xargs -r0 grep -li 'aspcode'
+
+
+========================================
+
+take a list of sites from /www/sites and execute commands on it
+
+#!/bin/bash
+
+for SITE in `ls /www/sites/` ; do
+mkdir /www/sites/$SITE/foobartest
+
+chown -R $SITE:vhosts /www/sites/$SITE/foobartest; done
+
+=========================================
+
+a find to find files larger than 100meg, with nice output:
+
+krypton0:/www# find . -type f -size +100000k -exec ls -lh {} \; | awk '{print $9 ": " $5 }'
+
+./etc/logs/k5140/access/access_log: 127M
+./data/k0001/outbox.sql: 217M
+./data/k0046/OpenbravoERP-2.35-MP1-linux-installer.bin: 245M
+
+============================================
+
+so say you have a file with a domain 1 per line, you want to use the COMPANYXYZ "add vhost users" tool to bulk add all the ftp accts:
+
+foo = the file with each domain to add 1 per line, 
+somestring = the password that'll be for each domain
+
+perl -pi -e 'chomp; $_ = "$_\tsomestring\t$_\n";' foo
+
+vm01:~# cp -R sites-add foo
+vm01:~# perl -pi -e 'chomp; $_ = "www.$_\tGT3ae2lahM\t$_\n";' foo
+
+makes
+
+domain.com
+
+into
+
+www.domain.com (tab) GT3ae2lahM (tab) domain.com (per line)
+
+another way:
+
+perl -pl -e '$_ = "www.$_\tsomestring\t$_";' sites-add > foo4
+
+then winscp foo4 up to your computer open in wordpad and then you can use the bulk add vhost tool to add all those accts
+=====
+
+currently xenon-vhost add will create an index.html file well if you rsync over the dirs the default file will be there unless you move it.. so i scripted that with this:
+
+# find . -maxdepth 4 -type f -name 'index.html' -print|grep files\/html >foo
+found the files that were index.html within the /files/html dir, then redirected it to a file
+
+then get rid of all the "./" at the beginning of the line like this:
+:%s/.\//
+
+then
+
+perl -pl -e '$_ = "$_  $_.orig";' foo >foo2
+
+then opened the file foo2 and did :%s/^/mv /g to add mv in front of all the dirs
+
+then just make it a bash script and voila.. .all original index.htmls are renamed to index.html.orig :)
+
+==========================
+
+syntax to modify an existing iptables rule on an existing chain:
+
+iptables -R sparkplay-in 2 -j ACCEPT -p tcp -d 67.201.33.234 --destination-port 80
+
+==========================
+
+==========================
+How to add cron job with a '&' in the URL
+==========================
+-----
+*/15 * * * * wget -O /dev/null 'http://torstore.tridian.com/index.php?option=com_catalog&controller=rss&task=reloadRss' &>/dev/null
+-----
+
+Take note of the single quotes(') which help read the URL as a whole because of the '&'.
+
+======================
+
+perl -nl -e 'print "chown -R $_ /www/sites/$_/files/html\n";' foo > foo2
+
+where foo is a ls /www/sites > foo
+
+makes
+
+chown -R www.1click2modify.com /www/sites/www.1click2modify.com/files/html
+
+OR via command line
+
+while read site; do chown -R $site /www/sites/$site/files/html;done < foo
+
+again where foo is a ls /www/sites > foo
+
+and it'll run through and fix any ownership :)
+
+===============
+
+useful script to backup all dbs from a file
+
+#/bin/bash
+line=/home/zeroadmin/dbNames
+exec < dbNames
+while read line
+do
+DBNAME=$line
+mysqldump --quick --single-transaction $DBNAME > /data/backups/db_dumps/$DBNAME.
+sql
+echo $DBNAME Done
+done
+
+=====================
+
+ cat foo|cut -d"`printf '\t'`" -f1 > homestart_domains
+
+this would cat a file with domains and other stuff using a tab delimiter and then take the field 1(which are domain names) and put them in a file :)
+
+======================
+
+To read (and verify) the contents of a csr:
+
+openssl req -text -noout -in www.example.com.csr
+
+=======================
+
+this command would add $user access to each db except mysql and information_schema
+
+for i in `mysql -BN -e 'show databases' | grep -vE '^(mysql|information_schema)$'` ; do mysql -e "grant all privileges on $i.* to user identified by 'Pass'" ; done
+
+==========================
+
+this perl command will search for from="67.201.32*anything else" and look ahead for the matching "root@backup1" and then change the above from to from="67.201.32.*, 68.71.240.*"
+
+perl -pe 's/^from="67.201.32[^"]+"(?=.*root\@backup1)/from="67.201.32.*,68.71.240.*"/' < test_key1
+
+then just use perl -pi -e to make it work on the file and remove the < from before the test_key1
+
+script to run on a serverlist to do the above:
+
+#!/bin/bash
+
+SERVERLIST=/root/dave/scripts/ssh-key-audit/serverlist.txt
+
+for host in `cat $SERVERLIST`;
+do
+    ssh $host "perl -i -pe 's/^from=\"67.201.32[^\"]+\"(?=.*root\@backup3)/from=\"67.201.32.*,68.71.240.*\"/' /root/.ssh/authorized_keys"
+done
+
+=====================
+
+search for any line that starts with category: and change to category: Base, for *.ini files
+
+perl -pi -e 's/^category:/category: Base/g' `find . -name '*.ini'`
+
+=====================
+
+this would allow snmp for 72.37.217.38
+
+iptables -I INPUT -j ACCEPT -p tcp -s 72.37.217.38 --destination-port 161
+
+======================
+
+start with 13 and end with 32 and make /dev/loop13 - /dev/loop32
+
+for (( i=13; i<32; i++ )) ; do mknod -m660 /dev/loop$i b 7 $i ; done
+
+==============
+
+to remove all white space at the start of all lines with vi
+
+
+:%s/^\s\s*//g
+
+==============
+
+Script that can rsync krypton KNNN names to a xenon $domain name based apache server, format of rsync-test is $Kname $domain, and is generated from:
+
+# raw-domains is just a list of domains from a xenon servers ls /www/sites
+for DOMAIN in `cat etc/raw-domains`; do grep $DOMAIN etc/passwd | awk -F: '{print $1, $5}'; done
+
+-----
+#!/bin/bash
+
+SITELIST=rsync-test
+
+while read host domain
+do
+        rsync -av /data/backups/krypton5.COMPANYXYZ.com/daily.0/krypton5.COMPANYXYZ.com/data/www/data/$host/html/ xenon2:/www/sites/$domain/files/html/
+done < "$SITELIST"
+
+=================================
+
+say you want to use iptables to NAT a port 8080 to look like 80, do the following, this is useful in the case of say jboss, running the app server as jboss user (for security reasons) but wanting it to LOOK like port 80, which isnt possible for security reasons, w/o some sneaky nat
+
+there is an iptables NAT redirect so that jboss can be started as the 'jboss' user BUT look like it's on port 80
+
+iptables -t nat -I PREROUTING --dst 72.37.217.146 -p tcp --dport 80 -j REDIRECT --to-ports 8080
+
+====================================
+
+search for any white space and make it a tab
+
+this would be a 1:1 ratio 1 space = 1 tab
+perl -pi -e 's/ /\t/g' filename
+
+this one would make multiple white spaces = 1 tab
+perl -pi -e 's/ +/\t/g'
+
+=====================
+
+test config of each rsnapshot conf file in /etc/rsnapshot/hosts
+
+for i in `ls /etc/rsnapshot/hosts/`; do rsnapshot -c $i configtest; done 
+
+=======================
+
+awesome use of Awk,
+
+if you have a file with domains 1 per line, and want to compare against a vhosts conf file and grab out servername, serveralias, and docroot for each of those domains, do the following, this also prints a blank line between each set of 3 (note there can be NO space before each line use, 
+:%s/^\s\s*//g to remove any white spaces before each line)
+
+awk 'NR==FNR{a[$1];next}/^<VirtualHost/{ok=0}/ServerName/{name=$0;if($2 in a)ok=1}/ServerAlias/{alias=$0}/DocumentRoot/{root=$0}/^<\/VirtualHost/{if(ok){print sep name;print alias;print root;sep=ORS}}' sitelist vhost.conf > Sites-Aliases-DocRoots-to-migrate
+
+==================================
+
+this command takes a file (OldServerPath) and a file (NewServerPath) reads them 1 at a time and then runs that rsync command against it allowing us to rsync all the old paths to the new paths
+
+paste OldServerPath NewServerPath | while read old new; do rsync -avn $old www01.bostonwebcompany.ml.COMPANYXYZ.com:$new; done
+
+=======================
+ 
+clean way to large files
+
+find . -type f -size +200M -printf "%s %f\n" |sort -n
+
+================
+
+## cool script to test ssh connection on a backup server
+
+#!/bin/bash
+
+#
+# script to test ssh
+#
+
+for confdir in /etc/rsnapshot/hosts/*[umc][ol].z*;
+do
+    server=${confdir%.conf};
+    server=${server##*/};
+
+    #ssh command to test connectivity
+    ssh -q -o "BatchMode=yes" $server "exit" ||
+    echo "$server : ssh failed -- fix it";
+done
+
+====================
+
+nifty script to test rsyncs from windows servers
+
+#!/bin/bash
+
+#
+# script to test rsync
+#
+
+for confdir in /etc/rsnapshot/hosts/*[umc]w.z*;
+do
+    server=${confdir%.conf};
+    server=${server##*/};
+
+    #rsync command to test connectivity
+    rsync -avn --password-file=/etc/rsnapshot/passwd backup@"$server"::system/Cygwin.bat . >/dev/null 2>&1 ||     echo "$server : rsync failed -- fix it";
+done
+
+==============
+
+nifty way to copy a file to backup1-8
+
+for server in backup{1..8}; do scp test-rsync $server:.; done
+
+==================
+
+cool way to search
+
+ls /etc/rsnapshot/hosts/ | egrep '(mw)|(uw)' > windows-hosts
+
+this finds all the files with mw and uw in that dir
+
+==================
+
+show incoming http requests
+
+tshark -n -i lo "dst port 80" -R "http.request"
+
+show what pages are being hit the most
+
+grep GET /www/sites/$domain/logs/access/access_log | perl -pi -e 's/^.+GET //; s/\s.+//; s/\?.+//' | sort | uniq -c | sort -nr | more
+
+======================
+regex to match:
+
+<a href='http://tests4all.org/5/'>meatloaf cheated on wife</a><a href='http://tests4all.org/6/'>occupation bond</a><a href='http://tests4all.org/7/'>agent 99 s partner</a><a href='http://tests4all.org/8/'>review of iq test online</a><a href='http://tests4all.org/9/'>hallock mn psychics and astrologers</a><a href='http://tent 99 s partner</a><a href='http://tests4all.org/8/'>review of iq test online</a><a href='http://tests4all.org/9/'>hallock mn psychics and astrologers</a><a href='http://tent 99 s partner</a><a href='http://tests4all.org/8/'>review of iq test online</a><a href='http://tests4all.org/9/'>hallock mn psychics and astrologers</a><a href='http://tent 99 s partner</a><a href='http://tests4all.org/8/'>review of iq test online</a>
+
+<a href='http://te.+?</a>
+
+the vi way:
+
+:%s;<a href=['"]http\=://te\.org.\{-}</a>;;g
+
+=============================
+
+search a list of files given 1 per line in the file 'filielist' and replace localhost with 67.201.60.5
+
+while read -r; do printf %s\\n ',s/localhost/67.201.60.5/g' w | ed -s "$REPLY"; done < filelist
+
+================================
+
+rename multiple files in same dir:
+
+say you have www.tolookhot.net.something and want to change to www.youngme.net.something, do the following:
+
+for f in *; do mv $f ${f/www.tolookhot.net/www.youngme.net}; done
+
+===================================
+
+rename multiple files in same dir and replace blank with _:
+
+for f in *; do mv "$f" `echo $f | tr ' ' '_'`; done
+
+===================================
+
+to make a list of servers (1 per line) into $server, $server, $server, etc
+
+perl -e 'local $/; ($a = <>) =~ s/\s+/, /g;print $a' $file-with-serverlist
+
+===================================
+
+cat access.log | perl -pi -e 's/\s.+//' | sort | uniq -c | sort -nr | head
+
+cat access_log | awk '{print $1}' |  sort | uniq -c | sort -n | tail  
+
+will generally give you the DoSing spider address
+
+===================================
+
+awk 'NF>1' file <== if theres a file with ips and other random text will just print out the lines which have ips+random text
+
+awk 'NF==1' file <== if theres a file with ips and other random text will just print out the lines with only an IP
+
+===================================
+
+say you want to copy all the lines from line 15000 out of a 25000 line file in vi goto that line with :15000 and then do
+
+:.,$w foo.txt
+
+this will save in your PWD a foo.txt with all those lines from where your cursor is to the EOF
+
+====================================
+
+this will print the full path of a list of *.php files even if you are 3-4 levels deep with the find .
+
+find . -type f -name '*.php' -exec readlink -f {} \;
+
+=========
+
+print out full path of all these files excluding the ones mentioned:
+
+find . -type f -not -iname "*.avi" -not -iname "*.mpg" -not -iname "*.gif" -not -iname "*.mov" -not -iname "*.rar" -not -iname "*.mp4" -not -iname "*.jpg" -not -iname "*.png" -not -iname "*.flv" -not -iname "*.psd" -not -iname "*.tif" -exec readlink -f {} \; > filelist
+
+or
+
+find . -regextype posix-extended -not -iregex '.*\.(avi|mpg|jpg|mov|mp4|gif|png|mpg|rar|psd|tif|flv)' -exec readlink -f {} \;
+
+
+===
+
+how to rsync a list of file from a compiled filelist (1 file per line) (note you must set your src location, in my example my filelist has the absolute paths):
+
+rsync -av --files-from=/root/forensics/filelist / $user@$server:/path/to/transfer/to/
+
+======================
+
+find all the files with -mtime -10 that dont have the extensions in the extension list, and then give the ls -lah of said files:
+
+ find . -regextype posix-egrep \! -iregex '.*\.(avi|mpg|jpg|mov|mp4|gif|png|mpg|rar|psd|tif|flv|bak|dat|mp3)' -type f -mtime -10 -print0 | xargs -r0 ls -lah|grep -v "cache"
+
+======================
+
+# using awk in a great way, take a file with a site name 1 per line, and then extract out all related vhost conf lines for each specific site name and have it create a $servername.txt file for each entry
+
+# where foo.txt = a list of domains 1 per line
+# where vhosts_parsing.conf = the vhost.conf file
+
+ awk -v "whitelist=foo.txt" 'BEGIN{while((getline line < whitelist)>0)wl[line]++}; flag{buffer=buffer"\n"$0}; /<VirtualHost/{flag=1;buffer=$0}; flag&&/ServerName/{servname=$2}; /<\/VirtualHost/{if(servname in wl)print buffer >> servname ".txt"; flag=0; buffer=""}' vhosts_parsing.conf
+
+This will create a .txt file for each VirtualHost which can then be combined into a new clean vhost file with a blank line between each virtualhost container with:
+
+perl -e 'local $/;print "$_\n" while <>;' *.txt > NEW_VHOST_PARSED_FILE.conf
+
+===========================
+
+remove new lines in a file and make it all 1 line
+
+cat coho_serverlist | tr -d "\r \n" > foo
+
+
+===========================
+
+for i in `ls /etc/rsnapshot/hosts/`; do b=${i%%.conf}; ssh $b "hostname"; done
+
+^^ this will take $servername.conf to $servername for the b variable and then ssh to the host and run 'hostname'
+
+===========================
+
+[17:15] <@inkling> this would probably be a good command to keep around to use on pop:      find /var/spool/postfix/defer -type f | xargs grep -h reason | sort | uniq -c | sort -nr | less
+[17:16] <@inkling> that'll tell you why stuff is in the deferred queue
+
+===========================
+
+#perl code to print out stars and the length of the stars show the usage of each folder / file from smallest to largest on the box:
+
+ du -k | sort -n | perl -ne 'if ( /^(\d+)\s+(.*$)/){$l=log($1+.1);$m=int($l/log(1024)); printf  ("%6.1f\t%s\t%25s  %s\n",($1/(2**(10*$m))),(("K","M","G","T","P")[$m]),"*"x (1.5*$l),$2);}'
+
+==================
+
+# find all the files and do a numeric sort on the size
+
+find . -type f -print0 | xargs -r0 ls -l |sort -r -n -k 5,5 | head -50
+
+==================
+
+Convert this:
+
+utility01:/home/dave# cat alot_of_received_emails | head -n 5
+Local           External
+        ->      brian@visionsinlight.com        72474   252.15 MB       3.56 KB 23 Nov 2010 - 01:56
+        ->      dkough@psww.com 58797   196.81 MB       3.43 KB 23 Nov 2010 - 01:56
+        ->      tompinson@miltonsales.com       58297   86.38 MB        1.52 KB 23 Nov 2010 - 01:56
+        ->      howard@healthconnexin.com       57602   118.71 MB       2.11 KB 23 Nov 2010 - 01:55
+
+TO this:
+
+utility01:/home/dave# cat alot_of_received_emails |awk '{FS="\t" ; printf(" %s %s\n",$3,$4); }' |head -n 5
+
+ brian@visionsinlight.com 72474
+ dkough@psww.com 58797
+ tompinson@miltonsales.com 58297
+ howard@healthconnexin.com 57602
+utility01:/home/dave#
+
+====
+Needed to remove the following from the front of each line:
+"[NN:NN] <@yourname> "
+.. in vi and/or with awk
+
+VI
+in command mode
+:%s/\[\d\d\:\d\d\] <@yourname> //g
+
+AWK
+awk '{gsub(/\[.+\] <@aixenv> /,"")}; 1' filename
+(Since awk's regex character classes are dumb, we cheated and used .+)
+
+=============
+
+Create a hosts file from the vhost dirs in /www/sites.
+Set $IP to the default apache ip or whatever you want.
+
+export IP=68.71.241.70 ; for i in `ls -1 /www/sites`; do echo -e "$IP $i $(echo $i | perl -n -e 'if ($_ =~ /www[\D?]/) { $_ =~ s/\w+\.//; print $_; }' )" ; done
+
+=============
+
+Edit a mail log (or any log file) down to exactly which emails you want to search, outputted with 2 lines afterwards (to show you the to=recipient line. grep -A 2 handles this part, adjust the number as is necessary) and then separated neatly with a new line in between.
+
+cat /var/log/mail.info | grep -A 2 "from=<foo@COMPANYXYZ.com" > /path/to/save/output | sed '$a/\n'
+
+=============
+
+# how to show duplicates on our backup server configuration
+
+ rsnapshot-status | awk '{print $2}'|sort |uniq -c |sort -n
+
+or
+
+rsnapshot-status | perl -lane 'print $F[1]' | uniq -d
+
+==============
+
+example of the ssh hanging, try ssh -o "BatchMode=yes" $host "/usr/sbin/backup-mysql >/dev/null 2>&1 &" vs ssh -o "BatchMode=yes" $host "/usr/sbin/backup-mysql &"
+
+===============
+
+use of sed to search/replace:
+
+ssh $host "sed -i 's/___IP___/$ip/g' /etc/xenon/apache2/ssl-hosts/*"
+
+===============
+
+#print the line before the STRING to find (in this case ERROR)
+
+awk '$0 ~ str{print a}{a=$0}' str="ERROR" $file_to_query
+
+================
+
+# vim
+
+# delete leading whitespace
+:%s/^\s\+//
+
+# delete trailing whitespace
+:%s/\s\+$//
+
+---
+
+# change a CSV file to "one entry per line"
+cat fgoservers | tr ',' '\n'
+
+---
+
+# change a file with 1 per line to entry,entry,entry
+
+cat file | tr '\n' ','
+
+Find Out If Box is Under DoS Attack or Not
+
+If you think your Linux box is under attack, print out a list of open connections on your box and sorts them by according to IP address, enter:
+# netstat -atun | awk '{print $5}' | cut -d: -f1 | sed -e '/^$/d' |sort | uniq -c | sort -n
+
+---
+
+# Create a CSV file/list out of the output of ls, etc
+# (stripping off some part of the filename, and all of the path)
+
+# ls /path/to/the/files | perl -F/ -lane 'print $F[-1]' | perl -pe 's/\.conf\n/,/g' | sed -e 's/,$//'
+
+example:
+backup14:~# ls /etc/rsnapshot/hosts*/* | perl -F/ -lane 'print $F[-1]' | perl -pe 's/\.conf\n/,/g' | sed -e 's/,$//'
+db01.pfrplatform.cw.COMPANYXYZ.com,db06.kms.uw.COMPANYXYZ.com,dr01.bills.ml.COMPANYXYZ.com,exchange5.win.COMPANYXYZ.com,firewall01.la3.vancl.ml.COMPANYXYZ.com,munin08.COMPANYXYZ.com,pop.COMPANYXYZ.com,vcenter01-10gb.COMPANYXYZ.com,video01.koldcast.ml.COMPANYXYZ.com,app02.dial800.mw.COMPANYXYZ.com,munin07.COMPANYXYZ.com,video02.koldcast.ml.COMPANYXYZ.com
+
+======
+
+# take all the .conf files in /etc/rsnapshot/hosts*/*.conf and turn them into a comma separated list (for use in backup reports)
+
+for i in `ls /etc/rsnapshot/hosts*/*|sed -e 's/\.conf//'`; do echo -e "$(basename $i), \c"; done
+
+
+--
+
+# to take the output and do it 1 per line with commands you'd do:
+
+for i in `ls /etc/rsnapshot/hosts*/*|sed -e 's/\.conf//'`; do echo -e "$(basename $i)"; done
+
+=====
+
+# take a file with 1 server per line and turn it into a csv output
+
+root@backup01:~# for i in `cat servers-to-add`; do echo -e "$(basename $i), \c"; done
+
+esx02.la01.aj.cl.COMPANYXYZ.com, esx03.la01.aj.cl.COMPANYXYZ.com, logdb02.la01.aj.cl.COMPANYXYZ.com, stage-analytics-app01.la01.aj.cl.COMPANYXYZ.com, analytics-app01.la01.aj.cl.COMPANYXYZ.com, stage-sbgdb01.la01.aj.cl.COMPANYXYZ.com, stage-sbgdb02.la01.aj.cl.COMPANYXYZ.com, stage-sbgdb03.la01.aj.cl.COMPANYXYZ.com, stage-sbgdb04.la01.aj.cl.COMPANYXYZ.com, root@backup01:~#
+
+
+======
+
+# take a server-report from the icinga csv format and then grab server and munin-node version on the same line
+for i in $(cat server-report |grep reset|cut -d';' -f1|perl -pe "s/'//g"|sort|uniq); do echo "$i $(ssh $i 'munin-node -v |grep version')"; done
+
+======
+
+# take epoch time and make it user friendly
+cat /var/log/icinga/icinga.log | perl -p -e 's/^\[(.*)\]/"[". localtime($1) . "]"/e'
+
+======
+
+# takes a list of servers and prints out $hostname: $value_from_main.cf_which_has_foobar, and doesnt output any of the ssh failures
+for i in `cat all_xenon_032312`; do echo -e "$i\t$(ssh $i 'cat /etc/postfix/main.cf|grep mydest 2>/dev/null' 2>/dev/null)"; done|grep foobar
+
+======
+
+# take a file with spaces and take the multiple spaces and convert to 1 tab (format is servers in rsnapshot-status output)
+cat serverlist_test | sed 's/ \+/\t/g' > foo
+
+# take the new tabbed file and cut out the servernames
+# you do "<CTRL+v><TAB>" to make the delimiter
+cat foo|cut -d"        " -f4 > servers-to-query
+
+======
+
+# search for multiple strings that exist within a file:
+for file in $(find . -type f -name "*.log"); do if [ "$(grep 'www03.rxmuscle' $file)" ] && [ "$(grep 'configuration.php' $file)" ]; then echo $file ; fi ; done
+
+======
+
+# check hostname on all the ssl sites that have $site.conf
+for i in `ls /etc/xenon/apache2/ssl-hosts/`; do b=${i%%.conf}; host -t a $b; done 
+
+======
+
+# useful commands to see the state of apache
+
+netstat -ant |grep 80 |wc -l
+
+netstat -ant | grep 80 | awk '{print $6}' | sort | uniq -c | sort -n
+
+netstat -ant | grep 80 | awk -F':' '{print $2}' |sort |uniq -c |sort -n |tail -n 10
+
+netstat -nat | awk '{ print $5}' | cut -d: -f1 | sed -e '/^$/d' | uniq
+
+netstat -uplanet |grep 80 | awk '{print $5}' | cut -d: -f1 | sed -e '/^$/d' |sort | uniq -c | sort -n
+
+## adjustments to /etc/sysctl.conf
+
+# Network tunning
+net.ipv4.tcp_fin_timeout = 35
+net.ipv4.tcp_keepalive_time = 1800
+net.ipv4.tcp_keepalive_intvl = 35
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_tw_reuse = 1
+
+======
+
+Look for who is connected to apache
+netstat -anpt|grep apache2|grep ESTABLISHED|cut -b45-60|cut -d':' -f1|sort -rn|uniq -c 
+
+
+======
+
+Fix ownership/permissions for $vhost in any directory past /www/sites/$domain/
+
+UZER=$(pwd|cut -d/ -f4) ; chown -R $UZER:vhosts /www/sites/$UZER/files/ && find /www/sites/$UZER/files/html/ -type d -exec chmod 755 {} \;   && find /www/sites/$UZER/files/html/ -type f -exec chmod 644 {} \;
+
+======
+
+#useful extreme loop to look for drops
+
+
+utility01 nfl-extreme # for i in `cat nflswitches`; do echo $i && ssh -l admin $i "show ports congestion no-refresh"; done| grep -v "R         0"|grep -v "A         0"
+
+======
+
+Create multiple similar directory structures:
+
+mkdir /path/{myfolder1,myfolder2}/{mysub1,mysub2} 
+    will make myfolder, myfolder1/mysub1, myfolder1/mysub2, myfolder2, myfolder2/mysub1, myfolder2/mysub2
+
+======
+
+See the distribution/spread of the email domains hosted on pop by first letter:
+
+for DIR in /var/vmail/domains/* ; do echo -n "$DIR --> " ; find -H $DIR -mindepth 1 -maxdepth 2 -type d | wc -l ; done
+
+======
+
+See the storage space utilization of the email domains hosted on pop by first letter:
+
+for DIR in /var/vmail/domains/* ; do du -hs $DIR/; done
+
+====
+
+# how to check from linux if the maintenanceplanchecker is running on a windows server
+
+dave@utility01 ~/backups $ ssh vm01.feldesmantucker.mw.COMPANYXYZ.com "schtasks | findstr Main"
+WARNING: Task scheduler service not running.
+MaintenancePlanChecker               11:00:00 PM, 1/16/2013
+dave@utility01 ~/backups $
+
+
+====
+Check the expiration date of a PEM formatted SSL Certificate file:
+
+openssl x509 -in FILENAME -noout -enddate | cut -f2 -d"="
+
+=====
+
+how to add the xenon.COMPANYXYZ.com ZL repo key to a server
+
+wget -O - http://xenon.COMPANYXYZ.com/COMPANYXYZ.com.gpg.key | apt-key add -
+
+#output all null routed ip addresses into a file
+
+xenon-firewall list | awk '$4 == "DROP" {print $9}' | sort -n > blacklist.txt
+
+
+==============
+
+Strace command for watching index page being hit.
+[12:09:24 PM] David Vigil: Go to files/html/ dir, run command below, hit the site in browser, command will end and give strace.txt file to examine, PROFIT!:
+
+USR=$(pwd|cut -d/ -f4) && USRUID=$(grep $USR /etc/passwd | cut -d: -f3) && x=1; while [ $x = 1 ]; do process=$(pgrep -u $USRUID php); if [ $process ]; then x=0; fi;  done; strace -vvtf -s 1024 -o strace.txt -p$process
+
+
+==============
