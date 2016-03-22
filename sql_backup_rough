@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# Awesome Scriptz0r for backing up mysql in a variety of ways. 
+# ensure all users are give creds via: CREATE USER 'USER'@'%' such that they can login remotely. 
+#
+ 
+# Set your variables, yo 
+hostname=
+username=
+password=
+database=
+databasebackuplocation=     #Place the full path of your db
+#wordpresslocation=  		# If you want to back up wp too
+#
+
+backuplocation=/mnt/remotefs
+# You can mount this over SSH FS if you prefer. 
+# apt-get install sshfs
+# sshfs -o allow_other,defer_permissions root@FQDN:{ remotelocation} {local location}
+# Example: sshfs -o allow_other,defer_permissions disk@diks.r.us:/home/dick/public_html/ /mnt/remotefs
+# If you want to place this in an S3 Bucket. 
+#bucket=MY_BUCKET
+#s3Key=MY_S3_KEY
+#s3Secret=MY_S3_SECRET
+# -or- If you want to dropbox this shiznit. 
+#dropbox_uploader="~/bin/dropbox_uploader.sh" #See Dropbox CLI documentation, this location tends to change.
+#dropbox_folder="Backup"
+ 
+currentdate=`date +"%Y-%m-%d"`
+dbfile=db.$currentdate.sql
+wpfile=backup.$currentdate.tar.bz2
+ 
+ 
+echo "backing up database"
+mysqldump --add-drop-table -h$hostname -u$username -p$password $database > db.$cur.sql
+ 
+echo "compress database"
+bzip2 $dbfile
+ 
+#echo "back up wordpress" ## If you want? May as well, SHEITTT
+#cd $wordpresslocation
+#tar -jcvf ../$wpfile --exclude='wp-content/cache/*' .
+ 
+#echo "transfer to s3"
+#resource="/${bucket}/${wpfile}"
+#contentType="application/x-compressed-tar"
+#dateValue=`date -R`
+#stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+#signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+#curl -X PUT -T "../${wpfile}" \
+#  -H "Host: ${bucket}.s3.amazonaws.com" \
+#  -H "Date: ${dateValue}" \
+#  -H "Content-Type: ${contentType}" \
+#  -H "Authorization: AWS ${s3Key}:${signature}" \
+#  https://${bucket}.s3.amazonaws.com/${wpfile}
+
+# 
+#
+cp -rf $dbfile $backuplocation
+#cp -rf $wpfile $backuplocation
+echo "done"
