@@ -1,0 +1,18 @@
+class msri::updates {
+        exec { 'apt-update-2':
+        command => 'apt-get -y update',
+        path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        before => [Exec ['debconf'], Exec ['dist-upgrade']],
+	}
+	
+	exec {'debconf':
+	command => 'echo debconf shared/accepted-oracle-license-v1-1 select true |debconf-set-selections; echo debconf shared/accepted-oracle-license-v1-1 seen true |debconf-set-selections;echo debconf acroread-common/default-viewer seen true | debconf-set-selections',
+	path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        before => Exec ['dist-upgrade'],
+	}
+
+	exec {'dist-upgrade':
+        command => 'apt-get -y dist-upgrade',
+        path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        }
+}
